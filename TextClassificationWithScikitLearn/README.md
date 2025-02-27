@@ -27,11 +27,11 @@ pip install torch transformers datasets scikit-learn numpy pandas matplotlib
 ## Results
 The performance of each model is summarized below:
 
-- *Logistic Regression*: Achieved an accuracy of 95%.
-- *Multinomial Naive Bayes*: Achieved an accuracy of 97%.
-- *Support Vector Classifier (SVC)*: Achieved an accuracy of 97%.
-- *Random Forest Classifier*: Achieved an accuracy of 92%.
-- *K-Nearest Neighbors (KNN)*: Achieved an accuracy of 94%.
+- __Logistic Regression__: Achieved an accuracy of 95%.
+- __Multinomial Naive Bayes__: Achieved an accuracy of 97%.
+- __Support Vector Classifier (SVC)__: Achieved an accuracy of 97%.
+- __Random Forest Classifier__: Achieved an accuracy of 92%.
+- __K-Nearest Neighbors (KNN)__: Achieved an accuracy of 94%.
 
 The detailed classification reports for each model are available in the notebook.
 
