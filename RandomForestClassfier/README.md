@@ -157,7 +157,6 @@ Feel free to extend this demo with:
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
 
 ---
 
