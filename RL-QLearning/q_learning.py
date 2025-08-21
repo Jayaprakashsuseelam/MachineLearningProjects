@@ -270,7 +270,7 @@ def visualize_training(agent: QLearningAgent):
 def visualize_q_table(agent: QLearningAgent, env: GridWorld):
     """Visualize the learned Q-table"""
     # Reshape Q-table to grid format
-    q_grid = agent.q_table.reshape(env.size, env.size, env.action_size)
+    q_grid = agent.q_table.reshape(env.size, env.size, len(env.actions))
     
     # Create a heatmap for each action
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
