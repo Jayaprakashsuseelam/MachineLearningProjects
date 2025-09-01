@@ -1,0 +1,142 @@
+# Default configuration for SL-ObjectDetection-Faster-R-CNN
+
+# Data configuration
+data:
+  root: "./data"
+  dataset: "VOC"
+  year: "2012"
+  train_split: "train"
+  val_split: "val"
+  test_split: "test"
+  download: true
+  image_size: [800, 800]
+  max_size: 1000
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+  batch_size: 2
+  num_workers: 4
+  pin_memory: true
+
+# Model configuration
+model:
+  backbone: "resnet50"
+  pretrained: true
+  freeze_backbone: false
+  freeze_layers: 0
+  num_classes: 21
+  rpn:
+    anchor_sizes: [32, 64, 128, 256, 512]
+    aspect_ratios: [0.5, 1.0, 2.0]
+    rpn_pre_nms_top_n_train: 2000
+    rpn_post_nms_top_n_train: 2000
+    rpn_pre_nms_top_n_test: 1000
+    rpn_post_nms_top_n_test: 1000
+    rpn_nms_thresh: 0.7
+    rpn_fg_iou_thresh: 0.7
+    rpn_bg_iou_thresh: 0.3
+    rpn_batch_size_per_image: 256
+    rpn_positive_fraction: 0.5
+  roi:
+    box_roi_pool: "roi_align"
+    box_head: "resnet50"
+    box_predictor: "fast_rcnn"
+    box_score_thresh: 0.05
+    box_nms_thresh: 0.5
+    box_detections_per_img: 100
+    box_fg_iou_thresh: 0.5
+    box_bg_iou_thresh: 0.5
+    box_batch_size_per_image: 512
+    box_positive_fraction: 0.25
+
+# Training configuration
+training:
+  epochs: 12
+  learning_rate: 0.001
+  weight_decay: 0.0005
+  momentum: 0.9
+  optimizer: "SGD"
+  scheduler: "StepLR"
+  step_size: 3
+  gamma: 0.1
+  warmup_epochs: 1
+  warmup_factor: 0.1
+  gradient_clip: 5.0
+  save_interval: 5
+  eval_interval: 2
+  early_stopping_patience: 10
+  resume_from: null
+  checkpoint_dir: "./checkpoints"
+  log_dir: "./logs"
+  tensorboard: true
+
+# Loss configuration
+loss:
+  rpn:
+    classification_weight: 1.0
+    regression_weight: 1.0
+    focal_loss: false
+    alpha: 0.25
+    gamma: 2.0
+  detection:
+    classification_weight: 1.0
+    regression_weight: 1.0
+    focal_loss: false
+    alpha: 0.25
+    gamma: 2.0
+    iou_loss: false
+    iou_loss_weight: 1.0
+
+# Evaluation configuration
+evaluation:
+  iou_thresholds: [0.5, 0.75]
+  iou_range: [0.5, 0.95]
+  max_detections: 100
+  save_predictions: true
+  save_visualizations: true
+  output_dir: "./results"
+
+# Augmentation configuration
+augmentation:
+  horizontal_flip: true
+  vertical_flip: false
+  color_jitter: true
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.05
+  random_crop: false
+  random_rotation: false
+  random_erasing: false
+  mixup: false
+  cutmix: false
+
+# Hardware configuration
+hardware:
+  device: "auto"  # auto, cpu, cuda, cuda:0
+  mixed_precision: false
+  deterministic: false
+  benchmark: true
+  num_gpus: 1
+  distributed: false
+  backend: "nccl"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/training.log"
+  console: true
+  tensorboard: true
+  wandb: false
+  wandb_project: "faster-rcnn"
+  wandb_entity: null
+
+# Testing configuration
+testing:
+  checkpoint_path: null
+  test_images: []
+  confidence_threshold: 0.5
+  nms_threshold: 0.5
+  max_detections: 100
+  save_results: true
+  output_format: "json"  # json, xml, coco
