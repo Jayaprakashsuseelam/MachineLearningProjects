@@ -11,18 +11,23 @@
 8. [Training](#training)
 9. [Evaluation](#evaluation)
 10. [Contributing](#contributing)
+11. [License](#license)
+12. [Acknowledgments](#acknowledgments)
+13. [Contact](#contact)
 
 ## Overview
 
 This project provides a comprehensive implementation of YOLO (You Only Look Once) object detection algorithm, featuring both theoretical understanding and practical implementation. YOLO is a state-of-the-art real-time object detection system that can detect objects in images and videos with high accuracy and speed.
 
 ### Key Features
-- **Multiple YOLO Versions**: Implementation of YOLOv3, YOLOv4, and YOLOv5
-- **Real-time Detection**: Fast inference for video streams
-- **Custom Training**: Support for training on custom datasets
-- **Comprehensive Documentation**: Detailed theoretical explanations
-- **Case Studies**: Practical examples and use cases
-- **Evaluation Tools**: Performance metrics and visualization
+- **YOLOv5 Implementation**: Complete implementation of YOLOv5 architecture with multiple model sizes (nano, small, medium, large, xlarge)
+- **Real-time Detection**: Fast inference for images and video streams
+- **Custom Training**: Support for training on custom datasets with comprehensive data augmentation
+- **Comprehensive Documentation**: Detailed theoretical explanations and practical examples
+- **Interactive Demo**: Complete demonstration script showcasing all features
+- **Evaluation Tools**: Performance metrics and visualization utilities
+- **Model Export**: Support for TorchScript and ONNX export
+- **Pre-trained Weights**: Automatic download of official YOLOv5 weights
 
 ## Theoretical Background
 
@@ -68,47 +73,33 @@ Where:
 
 ```
 SL-ObjectDetection-YOLO/
-├── README.md
-├── requirements.txt
+├── README.md                           # Project documentation
+├── requirements.txt                    # Python dependencies
+├── demo.py                            # Interactive demonstration script
 ├── config/
-│   ├── yolo_config.py
-│   └── model_configs/
+│   └── yolo_config.py                 # YOLO configuration management
 ├── models/
-│   ├── __init__.py
-│   ├── yolo_v3.py
-│   ├── yolo_v4.py
-│   ├── yolo_v5.py
-│   └── darknet.py
-├── utils/
-│   ├── __init__.py
-│   ├── data_utils.py
-│   ├── visualization.py
-│   ├── metrics.py
-│   └── preprocessing.py
-├── data/
-│   ├── datasets/
-│   └── weights/
-├── training/
-│   ├── __init__.py
-│   ├── trainer.py
-│   └── loss.py
+│   ├── __init__.py                    # Models package initialization
+│   └── yolo_v5.py                     # YOLOv5 model implementation
 ├── inference/
-│   ├── __init__.py
-│   ├── detector.py
-│   └── video_processor.py
-├── notebooks/
-│   ├── 01_yolo_theory.ipynb
-│   ├── 02_data_preparation.ipynb
-│   ├── 03_training.ipynb
-│   └── 04_evaluation.ipynb
+│   ├── __init__.py                    # Inference package initialization
+│   └── detector.py                    # YOLO detector for inference
+├── training/
+│   ├── __init__.py                    # Training package initialization
+│   ├── trainer.py                     # YOLO training orchestrator
+│   └── loss.py                        # Loss functions implementation
+├── utils/
+│   ├── __init__.py                    # Utils package initialization
+│   ├── data_utils.py                  # Data processing utilities
+│   └── metrics.py                     # Evaluation metrics
 ├── examples/
-│   ├── image_detection.py
-│   ├── video_detection.py
-│   └── webcam_detection.py
-└── tests/
-    ├── __init__.py
-    ├── test_models.py
-    └── test_utils.py
+│   └── image_detection.py             # Image detection example
+├── scripts/
+│   └── download_weights.py            # Pre-trained weights downloader
+├── tests/
+│   └── test_basic.py                  # Basic test suite
+└── notebooks/
+    └── 01_yolo_theory.ipynb           # Theory notebook (placeholder)
 ```
 
 ## Installation
@@ -147,32 +138,27 @@ python scripts/download_weights.py
 
 ### Quick Start
 
-1. **Image Detection**:
+1. **Run the Interactive Demo**:
+```bash
+python demo.py
+```
+This will showcase all features including model creation, inference, training concepts, and a case study.
+
+2. **Image Detection**:
+```bash
+python examples/image_detection.py --image path/to/image.jpg --weights data/weights/yolov5s.pt
+```
+
+3. **Programmatic Usage**:
 ```python
 from inference.detector import YOLODetector
 
 # Initialize detector
-detector = YOLODetector(model_path='weights/yolov5s.pt')
+detector = YOLODetector(model_path='data/weights/yolov5s.pt')
 
 # Detect objects in image
 results = detector.detect_image('path/to/image.jpg')
 detector.visualize_results(results, save_path='output.jpg')
-```
-
-2. **Video Detection**:
-```python
-from inference.video_processor import VideoProcessor
-
-# Process video
-processor = VideoProcessor(model_path='weights/yolov5s.pt')
-processor.process_video('input_video.mp4', 'output_video.mp4')
-```
-
-3. **Real-time Webcam Detection**:
-```python
-from examples.webcam_detection import run_webcam_detection
-
-run_webcam_detection(model_path='weights/yolov5s.pt')
 ```
 
 ### Training Custom Model
@@ -192,11 +178,17 @@ prepare_dataset(
 2. **Train Model**:
 ```python
 from training.trainer import YOLOTrainer
+from config.yolo_config import get_yolo_config
+
+# Get configuration
+config = get_yolo_config('yolov5s', 'coco')
 
 # Initialize trainer
 trainer = YOLOTrainer(
-    config_path='config/yolo_config.py',
-    data_path='data/datasets/custom/data.yaml'
+    model_config=config,
+    data_path='data/datasets/custom/data.yaml',
+    epochs=100,
+    batch_size=16
 )
 
 # Start training
@@ -222,141 +214,182 @@ Input Stream → Preprocessing → YOLO Detection → Post-processing → Visual
 
 #### 3. Implementation Details
 
+The `YOLODetector` class provides comprehensive inference capabilities:
+
 ```python
-class RealTimeDetector:
-    def __init__(self, model_path, confidence_threshold=0.5):
-        self.model = self.load_model(model_path)
-        self.confidence_threshold = confidence_threshold
-        self.previous_detections = []
+class YOLODetector:
+    def __init__(self, model_path=None, model=None, device='auto'):
+        # Automatic device selection (GPU/CPU)
+        # Model loading from path or pre-loaded model
+        # Configuration setup
     
-    def process_frame(self, frame):
-        # Preprocessing
-        processed_frame = self.preprocess(frame)
-        
-        # Inference
-        detections = self.model(processed_frame)
-        
-        # Post-processing
-        filtered_detections = self.filter_detections(detections)
-        
-        # Tracking
-        tracked_objects = self.track_objects(filtered_detections)
-        
-        return tracked_objects
+    def detect_image(self, image_path, conf_threshold=0.25, iou_threshold=0.45):
+        # Image preprocessing
+        # Model inference
+        # Post-processing with NMS
+        # Return detection results
+    
+    def visualize_results(self, results, image_path, save_path=None):
+        # Draw bounding boxes
+        # Add labels and confidence scores
+        # Save or display results
 ```
 
 #### 4. Results
-- **Accuracy**: 95.2% mAP on COCO dataset
-- **Speed**: 30 FPS on RTX 3080
-- **Latency**: <33ms per frame
+- **Accuracy**: High mAP on COCO dataset
+- **Speed**: Real-time inference on modern GPUs
+- **Latency**: Low inference time per frame
 
 ## Model Architecture
 
-### YOLOv3 Architecture
+### YOLOv5 Architecture
 
-```
-Input (416×416×3)
-    ↓
-Darknet-53 Backbone
-    ↓
-Feature Pyramid Network (FPN)
-    ↓
-Detection Heads (3 scales)
-    ↓
-Output: (13×13×255), (26×26×255), (52×52×255)
+The implementation includes the complete YOLOv5 architecture with the following components:
+
+#### 1. Backbone: CSPDarknet
+```python
+class CSPDarknet(nn.Module):
+    # CSP (Cross Stage Partial) connections
+    # Darknet-53 inspired architecture
+    # Multiple scales: P3, P4, P5
 ```
 
-### YOLOv4 Improvements
+#### 2. Neck: PANet (Path Aggregation Network)
+```python
+class PANet(nn.Module):
+    # Bottom-up path augmentation
+    # Adaptive feature pooling
+    # Multi-scale feature fusion
+```
 
-1. **Backbone**: CSPDarknet53
-2. **Neck**: PANet (Path Aggregation Network)
-3. **Head**: YOLOv3 head with improvements
-4. **Bag of Freebies**: Data augmentation, regularization
-5. **Bag of Specials**: Attention mechanisms, activation functions
+#### 3. Head: Detection Head
+```python
+class DetectionHead(nn.Module):
+    # Multi-scale detection heads
+    # Anchor-based predictions
+    # Class and bounding box outputs
+```
 
-### YOLOv5 Features
+#### 4. Key Building Blocks
+- **ConvBNSiLU**: Convolution + BatchNorm + SiLU activation
+- **Bottleneck**: Residual bottleneck block
+- **C3**: CSP Bottleneck with 3 convolutions
+- **SPPF**: Spatial Pyramid Pooling - Fast
 
-1. **Modular Design**: Easy customization
-2. **Auto-anchor**: Automatic anchor box calculation
-3. **Mixed Precision**: FP16 training
-4. **Model Export**: ONNX, TensorRT support
+### Model Variants
+The implementation supports multiple YOLOv5 model sizes:
+- **YOLOv5n**: Nano (3.2M parameters)
+- **YOLOv5s**: Small (7.2M parameters)
+- **YOLOv5m**: Medium (21.2M parameters)
+- **YOLOv5l**: Large (46.5M parameters)
+- **YOLOv5x**: XLarge (87.7M parameters)
 
 ## Training
 
 ### Data Preparation
 
-1. **Dataset Format**:
-```
-dataset/
-├── images/
-│   ├── train/
-│   └── val/
-├── labels/
-│   ├── train/
-│   └── val/
-└── data.yaml
-```
+The `YOLODataset` class provides comprehensive data handling:
 
-2. **Data Augmentation**:
-- Random crop and resize
-- Color jittering
-- Mosaic augmentation
-- MixUp augmentation
+```python
+class YOLODataset(Dataset):
+    def __init__(self, data_path, transform=None, augment=True):
+        # YOLO format data loading
+        # Albumentations for augmentation
+        # Mosaic and mixup augmentation
+        # Anchor box generation
+```
 
 ### Training Configuration
 
+The `YOLOTrainer` class orchestrates the complete training process:
+
 ```python
-# config/training_config.py
-training_config = {
-    'epochs': 300,
-    'batch_size': 16,
-    'learning_rate': 0.01,
-    'momentum': 0.937,
-    'weight_decay': 0.0005,
-    'warmup_epochs': 3,
-    'image_size': 640,
-    'num_classes': 80
-}
+class YOLOTrainer:
+    def __init__(self, model_config, data_path, epochs=300, batch_size=16):
+        # Model initialization
+        # Data loader setup
+        # Optimizer and scheduler configuration
+        # Loss function setup
+    
+    def train_epoch(self, epoch):
+        # Single epoch training
+        # Loss calculation
+        # Gradient updates
+        # Progress tracking
+    
+    def validate_epoch(self, epoch):
+        # Validation on test set
+        # Metric calculation
+        # Model evaluation
 ```
 
-### Training Process
+### Loss Functions
 
-1. **Warmup Phase**: Gradual learning rate increase
-2. **Main Training**: Full learning rate with scheduling
-3. **Fine-tuning**: Lower learning rate for refinement
+The implementation includes comprehensive loss functions:
+
+```python
+class YOLOLoss(nn.Module):
+    # Coordinate loss (MSE)
+    # Objectness loss (BCE)
+    # Classification loss (CrossEntropy)
+    # IoU loss for better localization
+
+class FocalLoss(nn.Module):
+    # Focal loss for class imbalance
+    # Adjustable alpha and gamma parameters
+
+class IoULoss(nn.Module):
+    # Intersection over Union loss
+    # Better bounding box regression
+```
+
+### Training Features
+- **Automatic Mixed Precision (AMP)**: FP16 training for speed
+- **Learning Rate Scheduling**: Cosine annealing, step, and multi-step schedulers
+- **Checkpointing**: Automatic model saving
+- **TensorBoard Logging**: Training metrics visualization
+- **Early Stopping**: Prevent overfitting
 
 ## Evaluation
 
 ### Metrics
 
-1. **mAP (mean Average Precision)**:
-   - IoU thresholds: 0.5, 0.75, 0.5:0.95
-   - Per-class and overall performance
-
-2. **Speed Metrics**:
-   - FPS (Frames Per Second)
-   - Inference time per frame
-   - Throughput (images/second)
-
-3. **Memory Usage**:
-   - GPU memory consumption
-   - Model size (parameters)
-
-### Evaluation Script
+The `metrics.py` module provides comprehensive evaluation tools:
 
 ```python
-from utils.metrics import evaluate_model
+def calculate_map(predictions, ground_truth, iou_threshold=0.5):
+    # Mean Average Precision calculation
+    # Multiple IoU thresholds support
+    # Per-class and overall metrics
 
-# Evaluate model
-results = evaluate_model(
-    model_path='weights/best.pt',
-    test_data='data/datasets/coco/val2017',
-    conf_threshold=0.001,
-    iou_threshold=0.6
+def calculate_precision_recall(predictions, ground_truth, conf_threshold=0.5):
+    # Precision and recall calculation
+    # F1-score computation
+    # Confusion matrix generation
+```
+
+### Evaluation Features
+- **mAP Calculation**: Mean Average Precision at various IoU thresholds
+- **Precision-Recall Curves**: Visualization of model performance
+- **Confusion Matrix**: Detailed classification analysis
+- **IoU Calculation**: Intersection over Union metrics
+- **Detection Metrics**: True Positives, False Positives, False Negatives
+
+### Usage Example
+```python
+from utils.metrics import calculate_detection_metrics
+
+# Evaluate model performance
+metrics = calculate_detection_metrics(
+    predictions=model_predictions,
+    ground_truth=ground_truth,
+    conf_threshold=0.5,
+    iou_threshold=0.5
 )
 
-print(f"mAP@0.5: {results['mAP_50']:.3f}")
-print(f"mAP@0.5:0.95: {results['mAP_50_95']:.3f}")
+print(f"Precision: {metrics['precision']:.3f}")
+print(f"Recall: {metrics['recall']:.3f}")
+print(f"F1-Score: {metrics['f1_score']:.3f}")
 ```
 
 ## Contributing
@@ -373,15 +406,20 @@ We welcome contributions! Please follow these steps:
 
 ```bash
 # Install development dependencies
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 
 # Run tests
-pytest tests/
+python -m pytest tests/
 
-# Run linting
-flake8 .
-black .
+# Run the demo
+python demo.py
 ```
+
+### Code Style
+- Follow PEP 8 guidelines
+- Use type hints where appropriate
+- Add docstrings for all functions and classes
+- Include unit tests for new features
 
 ## License
 
@@ -393,6 +431,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - YOLOv4 paper by Alexey Bochkovskiy et al.
 - YOLOv5 implementation by Ultralytics
 - COCO dataset and evaluation metrics
+- PyTorch community for the excellent framework
 
 ## Contact
 
