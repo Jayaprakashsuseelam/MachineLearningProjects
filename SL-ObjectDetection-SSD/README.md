@@ -3,7 +3,6 @@
 A comprehensive implementation and tutorial for Single Shot Detector (SSD) object detection with theoretical understanding and practical implementation.
 
 ## 📚 Table of Contents
-
 - [Overview](#overview)
 - [Theoretical Background](#theoretical-background)
 - [Architecture](#architecture)
