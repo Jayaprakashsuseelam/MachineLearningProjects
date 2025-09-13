@@ -77,7 +77,7 @@ Where:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/VariationalAutoencoders-VAE.git
+git clone https://github.com/Jayaprakashsuseelam/MachineLearningProjects/tree/main/VariationalAutoencoders-VAE
 cd VariationalAutoencoders-VAE
 
 # Install dependencies
