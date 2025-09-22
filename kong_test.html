@@ -1,0 +1,30 @@
+
+<!--
+  This software is copyright Kong Inc. and its licensors.
+  Use of the software is subject to the agreement between your organization
+  and Kong Inc. If there is no such agreement, use is governed by and
+  subject to the terms of the Kong Master Software License Agreement found
+  at https://konghq.com/enterprisesoftwarelicense/.
+-->
+
+<!doctype html><html lang="en"><head><script>self["MonacoEnvironment"] = (function (paths) {
+          return {
+            globalAPI: false,
+            getWorkerUrl : function (moduleId, label) {
+              var result =  paths[label];
+              if (/^((http:)|(https:)|(file:)|(\/\/))/.test(result)) {
+                var currentUrl = String(window.location);
+                var currentOrigin = currentUrl.substr(0, currentUrl.length - window.location.hash.length - window.location.search.length - window.location.pathname.length);
+                if (result.substring(0, currentOrigin.length) !== currentOrigin) {
+                  var js = '/*' + label + '*/importScripts("' + result + '");';
+                  var blob = new Blob([js], { type: 'application/javascript' });
+                  return URL.createObjectURL(blob);
+                }
+              }
+              return result;
+            }
+          };
+        })({
+  "editorWorkerService": "/monacoeditorwork/editor.worker.bundle.js",
+  "json": "/monacoeditorwork/json.worker.bundle.js"
+});</script><meta charset="utf-8"><meta http-equiv="Content-Language" content="en"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/><title>Kong Admin</title><script src="/kconfig.js"></script><script>global = globalThis</script><script type="module" crossorigin src="/assets/index.D09qAfSg.3_9_0_1.js"></script><link rel="modulepreload" crossorigin href="/assets/monaco-editor.5caDK2WS.3_9_0_1.js"><link rel="stylesheet" crossorigin href="/assets/monaco-editor.ELsdWyi6.3_9_0_1.css"><link rel="stylesheet" crossorigin href="/assets/index.DQ8ii3C9.3_9_0_1.css"></head><body><div id="app-mount"></div></body></html>
